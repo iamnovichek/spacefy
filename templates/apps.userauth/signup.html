@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block extrahead %}
 <meta charset="UTF-8">
@@ -26,29 +27,30 @@ integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2
             <h2>Signup</h2>
         </div>
         <form method="post">
+            {% csrf_token %}
             <div class="d-block">
                 <label for="email" style="margin-left: 5px;"><b>Email:</b></label>
-                <input type="email" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="email" class="form-control" placeholder="Enter your email...">
+                {% render_field form.email type="email" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="email" class="form-control" placeholder="Enter your email..." %}
             </div>
             <div class="d-block">
                 <label for="username" style="margin-left: 5px;"><b>Username:</b></label>
-                <input type="text" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="username" class="form-control" placeholder="Enter your username...">
+                {% render_field form.username type="text" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="username" class="form-control" placeholder="Enter your username..." %}
             </div>
             <div class="d-block">
                 <label for="first-name" style="margin-left: 5px;"><b>First name:</b></label>
-                <input type="text" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="first-name" class="form-control" placeholder="Enter your first name...">
+                {% render_field form.first_name type="text" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="first-name" class="form-control" placeholder="Enter your first name..."%}
             </div>
             <div class="d-block">
                 <label for="last-name" style="margin-left: 5px;"><b>Last name:</b></label>
-                <input type="text" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="last-name" class="form-control" placeholder="Enter your last name...">
+                {% render_field form.last_name type="text" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="last-name" class="form-control" placeholder="Enter your last name..." %}
             </div>
             <div class="d-block">
                 <label for="password" style="margin-left: 5px;"><b>Password:</b></label>
-                <input type="password" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="password" class="form-control" placeholder="Enter your password...">
+                {% render_field form.password1 type="password" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="password" class="form-control" placeholder="Enter your password..." %}
             </div>
             <div class="d-block">
                 <label for="confirm-password" style="margin-left: 5px;"><b>Confirm password:</b></label>
-                <input type="password" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="confirm-password" class="form-control" placeholder="Confirm you password...">
+                {% render_field form.password2 type="password" style="margin-left: 5px;margin-bottom: 5px;width: 98%;" id="confirm-password" class="form-control" placeholder="Confirm you password..." %}
             </div>
             <div class="d-flex justify-content-center align-items-center">
                 <button class="btn btn-dark text-light" style="margin-bottom: 5px;" type="submit">Submit</button>

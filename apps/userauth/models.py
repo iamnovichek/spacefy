@@ -97,7 +97,7 @@ class UserProfile(models.Model):
         MinLengthValidator(limit_value=2, message="Last name should contail at least 2 characters!")
     ])
     description = models.CharField(max_length=10**4, null=True, blank=True)
-    links = ArrayField(base_field=models.CharField(), null=True, blank=True)
+    links = ArrayField(base_field=models.CharField(max_length=255), null=True, blank=True)
     # photo = models.ImageField(default="default.png", upload_to='profile_pics', blank=True, null=True)
 
     def __str__(self):
