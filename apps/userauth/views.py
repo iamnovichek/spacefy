@@ -4,7 +4,6 @@ from django.shortcuts import render, redirect
 from django.views.generic import CreateView
 from django.contrib.auth import login
 from django.contrib import messages
-
 from .forms import CustomSignupForm
 
 
@@ -15,7 +14,8 @@ class CustomLoginView(LoginView):
     success_url = "home"
 
     def form_invalid(self, form):
-        messages.error(self.request, "Invalid value/es! Try again or sign up!")
+        messages.error(self.request, message="Please enter a correct email and password.Note that both fields may be "
+                                             "case-sensitive. (You can also try to login with google)")
         return self.render_to_response(self.get_context_data(form=form))
 
 

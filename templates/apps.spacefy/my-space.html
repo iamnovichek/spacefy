@@ -28,7 +28,7 @@
               <div class="collapse navbar-collapse" id="navbar">
                 <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
                   <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Go surf</a>
+                    <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Go surf</a>
                   </li>
                 </ul>
                 <form class="d-flex" role="search">
@@ -61,14 +61,14 @@
 
     <main class="container-fluid" style="min-height: calc(100vh - 82px);">
         <div class="bg-custom-dark text-dark position-relative top-0 start-50 translate-middle-x" style="width: 70%; min-height:calc(100vh - 82px);">
-            <br>
+          <br>
             <div class="d-flex justify-content-evenly">
                 <div class="d-block">
                     <div class="d-flex justify-content-center align-items-center">
                         <h4>{{ user.userprofile.username }}</h4>
                     </div>
                     <div class="d-flex justify-content-center align-items-center">
-                        <img class="img-fluid rounded-circle" src="{% static 'spacefy/images/default.png' %}" style="width: 60%;height: 60%">
+                        <img class="img-fluid rounded-circle" src="{{ user.userprofile.avatar.url }}" style="width: 200px;height: 200px">
                     </div>
                 </div>
                 <div class="d-block">
@@ -82,7 +82,7 @@
             </div><br>
             <div class="d-flex justify-content-center align-items-center">
                 <div class="d-block">
-                    <a href="#" class="btn btn-primary">Edit personal info</a>
+                    <a href="{% url "edit-my-space" user.userprofile.slug %}" class="btn btn-primary">Edit personal info</a>
                 </div>
             </div><br>
             <div class="d-flex justify-content-center align-items-center">
@@ -94,11 +94,6 @@
                         {% if user.userprofile.description %}
                           <div class="d-block" style="margin-bottom: 5px;">
                               <b>Description: </b>{{user.userprofile.description}}
-                          </div>
-                        {% endif %}
-                        {% if user.userprofile.links %}
-                          <div class="d-block" style="margin-bottom: 5px;">
-                              <b>Links: </b>{{user.userprofile.links}}
                           </div>
                         {% endif %}
                         <div class="d-block" style="margin-bottom: 5px;">
@@ -116,7 +111,7 @@
             <div class="d-flex justify-content-evenly">
               <a class="btn btn-primary" style="width: 300px;" href="#">My posts</a>
               <a class="btn btn-primary" style="width: 300px;" href="#">My photos</a>
-            </div>
+            </div><br>
         </div>
     </main>
 

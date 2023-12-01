@@ -12,6 +12,8 @@ python-dotenv = "^1.0.0"
 psycopg2-binary = "^2.9.9"
 django-widget-tweaks = "^1.5.0"
 pillow = "^10.1.0"
+django-allauth = "^0.58.2"
+django-debug-toolbar = "^4.2.0"
 
 
 [build-system]

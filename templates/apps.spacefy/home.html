@@ -19,18 +19,21 @@
     <div class="sticky-top">
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
-              <a href="{% url "home" %}"><img src="{% static 'spacefy/images/logo-trans.png' %}" alt="" class="img-fluid"  style="height: 45px;margin-bottom: 10px;"></a>
-              <a class="navbar-brand spacefy-font" href="{% url "home" %}"><h1>Spacefy</h1></a>
+              <a href="{% url 'home' %}"><img src="{% static 'spacefy/images/logo-trans.png' %}" alt="" class="img-fluid"  style="height: 45px;margin-bottom: 10px;"></a>
+              <a class="navbar-brand spacefy-font" href="{% url 'home' %}"><h1>Spacefy</h1></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
               <div class="collapse navbar-collapse" id="navbarScroll">
                 <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
-                  <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url "my-space" %}">My space</a>
-                  </li>
+                  {% if user.is_authenticated %}
+                    <li class="nav-item">
+                      <a class="nav-link active" aria-current="page" href="{% url 'my-space' %}">My space</a>
+                    </li>
+                  {% endif %}
                 </ul>
                 <form class="d-flex" role="search">
+                  {% if user.is_authenticated %}
                   <a href="#">
                     <div class="d-inline-flex" style="width: 48px;">
                       <span class="mt-1 text-secondary material-symbols-outlined" style="font-size: 30px;">Chat</span>
@@ -51,12 +54,13 @@
                       </div>
                     </div>
                   </a>
-                  <a href="#" class="me-2 mt-1"><span class="text-secondary material-symbols-outlined" style="font-size: 30px;">Settings</span></a>
+                    <a href="#" class="me-2 mt-1"><span class="text-secondary material-symbols-outlined" style="font-size: 30px;">Settings</span></a>
+                  {% endif %}
                   {% if user.is_authenticated %}
-                    <a class="btn btn-secondary me-2" href="{% url "logout" %}">Log out</a>  
+                    <a class="btn btn-secondary me-2" href="{% url 'logout' %}">Log out</a>
                   {% else %}  
-                    <a class="btn btn-secondary me-2" href="{% url "signup" %}">Sign up</a>
-                    <a class="btn btn-dark me-2" href="{% url "login" %}">Log in</a>
+                    <a class="btn btn-secondary me-2" href="{% url 'signup' %}">Sign up</a>
+                    <a class="btn btn-dark me-2" href="{% url 'login' %}">Log in</a>
                   {% endif %}
                 </form>
               </div>

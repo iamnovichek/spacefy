@@ -1,11 +1,13 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import validate_email, MinLengthValidator
+from django.core.validators import validate_email, MinLengthValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 from django.db import models
 
 from PIL.Image import Image
+
+from apps.spacefy.models import Friend, Post, Photo, Story
 
 
 class CustomUserManager(BaseUserManager):
@@ -87,24 +89,25 @@ class CustomUser(AbstractBaseUser):
 class UserProfile(models.Model):
     user = models.OneToOneField(CustomUser, related_name='userprofile', on_delete=models.CASCADE)
     username = models.CharField(max_length=30, unique=True, validators=[
-        MinLengthValidator(limit_value=2, message="Username should contail at least 2 characters!")
+        MinLengthValidator(limit_value=2, message="Username should contain at least 2 characters!")
     ])
     slug = models.SlugField(unique=True)
     first_name = models.CharField(max_length=30, validators=[
-        MinLengthValidator(limit_value=2, message="First name should contail at least 2 characters!")
+        MinLengthValidator(limit_value=2, message="First name should contain at least 2 characters!")
     ])
     last_name = models.CharField(max_length=30, validators=[
-        MinLengthValidator(limit_value=2, message="Last name should contail at least 2 characters!")
+        MinLengthValidator(limit_value=2, message="Last name should contain at least 2 characters!")
     ])
-    description = models.CharField(max_length=10**4, null=True, blank=True)
-    links = ArrayField(base_field=models.CharField(max_length=255), null=True, blank=True)
-    # photo = models.ImageField(default="default.png", upload_to='profile_pics', blank=True, null=True)
+    avatar = models.ImageField(default="default.png", upload_to='profile_pics', blank=True, null=True)
+    photos = models.ForeignKey(Photo, on_delete=models.CASCADE, null=True, blank=True)
+    friends = models.ForeignKey(Friend, on_delete=models.CASCADE, null=True, blank=True)
+    description = models.TextField(max_length=10 ** 4, null=True, blank=True)
+    stories = models.ForeignKey(Story, on_delete=models.CASCADE, null=True, blank=True)
+    posts = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.username
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.username)
-        # img = Image.open(self.photo.path)
-        # img.resize(200, 200).save(self.photo.path)
         return super().save(*args, **kwargs)

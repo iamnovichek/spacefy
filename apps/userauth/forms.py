@@ -6,6 +6,7 @@ from .models import CustomUser, UserProfile
 
 class CustomSignupForm(forms.ModelForm):
     username = forms.CharField(required=True)
+    email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
     password1 = forms.CharField(required=True, widget=forms.PasswordInput())
@@ -18,6 +19,22 @@ class CustomSignupForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super(CustomSignupForm, self).clean()
         username = cleaned_data.get('username')
+        first_name = cleaned_data.get('first_name')
+        last_name = cleaned_data.get('last_name')
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+
+        if len(username) < 2:
+            raise ValidationError("Username should contain at least 2 characters!")
+
+        if len(first_name) < 2:
+            raise ValidationError("First name should contain at least 2 characters!")
+
+        if len(last_name) < 2:
+            raise ValidationError("Last name should contain at least 2 characters!")
+
+        if password1 != password2:
+            raise ValidationError("Password doesn't match!")
 
         if UserProfile.objects.filter(username=username).exists():
             raise ValidationError("Current username is already taken!")
