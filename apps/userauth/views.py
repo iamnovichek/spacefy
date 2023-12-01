@@ -32,7 +32,7 @@ class CustomSignupView(CreateView):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect(self.success_url)
 
         return render(request, self.template_name, {'form': form})
