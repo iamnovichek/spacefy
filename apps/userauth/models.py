@@ -7,8 +7,6 @@ from django.db import models
 
 from PIL.Image import Image
 
-from apps.spacefy.models import Friend, Post, Photo, Story
-
 
 class CustomUserManager(BaseUserManager):
     def create_user(self,
@@ -99,11 +97,10 @@ class UserProfile(models.Model):
         MinLengthValidator(limit_value=2, message="Last name should contain at least 2 characters!")
     ])
     avatar = models.ImageField(default="default.png", upload_to='profile_pics', blank=True, null=True)
-    photos = models.ForeignKey(Photo, on_delete=models.CASCADE, null=True, blank=True)
-    friends = models.ForeignKey(Friend, on_delete=models.CASCADE, null=True, blank=True)
+    # photos = models.ForeignKey(Photo, on_delete=models.CASCADE, null=True, blank=True)
+    # friends = models.ForeignKey(Friend, on_delete=models.CASCADE, null=True, blank=True)
     description = models.TextField(max_length=10 ** 4, null=True, blank=True)
-    stories = models.ForeignKey(Story, on_delete=models.CASCADE, null=True, blank=True)
-    posts = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True)
+    # stories = models.ForeignKey(Story, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.username

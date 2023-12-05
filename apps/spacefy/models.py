@@ -1,5 +1,7 @@
 from django.db import models
 
+from apps.userauth.models import CustomUser
+
 
 class Story(models.Model):
     ...
@@ -19,7 +21,12 @@ class Photo(models.Model):
 #     ])
 
 class Post(models.Model):
-    ...
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    text = models.CharField()
+    description = models.CharField(null=True)
+
+    def __str__(self):
+        return self.text[:10] + "..."
 
 
 # posts

@@ -35,4 +35,4 @@ class CustomSignupView(CreateView):
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect(self.success_url)
 
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, context={'form': form})

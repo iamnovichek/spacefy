@@ -8,6 +8,7 @@ from django.forms import ClearableFileInput
 from PIL import Image
 from apps.userauth.models import UserProfile
 
+from .models import Post
 
 class CreateMySpaceForm(forms.ModelForm):
     username = forms.CharField(min_length=2, required=True)
@@ -126,3 +127,29 @@ class EditMySpaceForm(forms.ModelForm):
                                  self.cleaned_data['last_name'][1:])
             profile.description = self.cleaned_data['description']
             profile.save()
+
+
+class AddPostForm(forms.ModelForm):
+    text = forms.CharField(widget=forms.Textarea(attrs={"cols": "30", "rows": "2"}))
+    description = forms.CharField(widget=forms.Textarea(attrs={"cols": "30", "rows": "2"}), required=False)
+
+    class Meta:
+        model = Post
+        fields = ['text', 'description']
+
+    def is_valid(self):
+        res = super().is_valid()
+        if not res:
+            print(self.errors)
+            return res
+        return res
+
+    def save(self, commit=True):
+        if commit:
+            post = Post.objects.create(
+                user=self.instance,
+                text=self.cleaned_data['text'],
+                description=self.cleaned_data['description']
+            )
+
+            return post
