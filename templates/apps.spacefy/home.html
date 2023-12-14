@@ -123,10 +123,15 @@
         </div>
       </div>
     </div>
-
     <main class="container-fluid" style="min-height: calc(100vh - 82px);">
       <div class="bg-custom-dark text-dark position-relative top-0 start-50 translate-middle-x" style="width: 70%; min-height: calc(100vh - 82px);">
-
+        {% if messages %}
+          {% for m in messages %}
+              <div class="alert alert-success">
+                {{m}}
+              </div>
+          {% endfor %}
+        {% endif %}
         <br>
         <div class="container bg-dark text-light rounded" style="max-width: 70%;">
             <div class="position-relative start-0 d-block">

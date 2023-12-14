@@ -76,7 +76,7 @@
                     <ul style="list-style-type: none;">
                         <li style="margin: 2px;"><button class="btn btn-primary" style="width: 70px;">Story</button></li>
                         <a href='{% url "create-post" %}'><li style="margin: 2px;"><button class="btn btn-primary" style="width: 70px;">Post</button></li></a>
-                        <li style="margin: 2px;"><button class="btn btn-primary" style="width: 70px;">Photo</button></li>
+                        <a href='{% url "add-photo" %}'><li style="margin: 2px;"><button class="btn btn-primary" style="width: 70px;">Photo</button></li></a>
                     </ul>
                 </div>
             </div><br>
@@ -97,10 +97,10 @@
                           </div>
                         {% endif %}
                         <div class="d-block" style="margin-bottom: 5px;">
-                          <b>Posts: </b> 544
+                          <b>Posts: </b> {{posts}}
                         </div>
                         <div class="d-block" style="margin-bottom: 5px;">
-                          <b>Photos: </b> 33
+                          <b>Photos: </b> {{photos}}
                         </div>
                         <div class="d-block" style="margin-bottom: 5px;">
                           <b>Friends: </b> 345
@@ -109,8 +109,12 @@
                 </div>
             </div><br><br><br><br><br>
             <div class="d-flex justify-content-evenly">
-              <a class="btn btn-primary" style="width: 300px;" href="#">My posts</a>
-              <a class="btn btn-primary" style="width: 300px;" href="#">My photos</a>
+              {% if posts %}
+                <a class="btn btn-primary" style="width: 300px;" href="{% url "my-posts" %}">My posts</a>
+              {% endif %}
+              {% if photos %}
+                <a class="btn btn-primary" style="width: 300px;" href="{% url "my-photos" %}">My photos</a>
+              {% endif %}
             </div><br>
         </div>
     </main>

@@ -1,14 +1,15 @@
 import os
 
 from datetime import datetime
-
+from pprint import pprint
 from django.core.exceptions import ValidationError
 from django import forms
 from django.forms import ClearableFileInput
-from PIL import Image
+from PIL import Image as I
 from apps.userauth.models import UserProfile
 
-from .models import Post
+from .models import Post, Gallery, Image
+
 
 class CreateMySpaceForm(forms.ModelForm):
     username = forms.CharField(min_length=2, required=True)
@@ -112,10 +113,11 @@ class EditMySpaceForm(forms.ModelForm):
                     try:
                         if profile.avatar.url != "/media/default.png":
                             os.remove(f"{os.getcwd()}/{profile.avatar.url}")
+                    #  REWRITE THIS PART
                     except (FileNotFoundError, ValueError) as e:
                         print(e)
-
-                    img = Image.open(fp=self.cleaned_data['avatar'])
+                    #  REWRITE THIS PART
+                    img = I.open(fp=self.cleaned_data['avatar'])
                     img.resize(size=(200, 200))
                     img.save(fp=self.cleaned_data['avatar'])
                     profile.avatar = self.cleaned_data['avatar']
@@ -131,25 +133,56 @@ class EditMySpaceForm(forms.ModelForm):
 
 class AddPostForm(forms.ModelForm):
     text = forms.CharField(widget=forms.Textarea(attrs={"cols": "30", "rows": "2"}))
-    description = forms.CharField(widget=forms.Textarea(attrs={"cols": "30", "rows": "2"}), required=False)
 
     class Meta:
         model = Post
-        fields = ['text', 'description']
-
-    def is_valid(self):
-        res = super().is_valid()
-        if not res:
-            print(self.errors)
-            return res
-        return res
+        fields = ['text']
 
     def save(self, commit=True):
         if commit:
             post = Post.objects.create(
                 user=self.instance,
                 text=self.cleaned_data['text'],
-                description=self.cleaned_data['description']
             )
 
             return post
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+
+
+class AddPhotoForm(forms.ModelForm):
+    image = MultipleFileField()
+
+    class Meta:
+        model = Gallery
+        fields = ['description']
+
+    def save(self, commit=True):
+        result = super().save(commit=commit)
+        if commit:
+            for image in self.cleaned_data['image']:
+                Image(gallery=result, image=image).save()
+            return result
+
+
+# class AddImagesForm(AddPhotoForm):
+#     image = forms.FileField(widget=CustomFileInput(attrs={'multiple': True}), required=True)
+#
+#     class Meta(AddPhotoForm.Meta):
+#         fields = AddPhotoForm.Meta.fields + ['image']

@@ -59,8 +59,7 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser):
-    email = models.CharField(max_length=255, null=False, unique=True,
-                             blank=False, validators=[validate_email])
+    email = models.CharField(max_length=255, unique=True, validators=[validate_email])
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
@@ -96,10 +95,9 @@ class UserProfile(models.Model):
     last_name = models.CharField(max_length=30, validators=[
         MinLengthValidator(limit_value=2, message="Last name should contain at least 2 characters!")
     ])
-    avatar = models.ImageField(default="default.png", upload_to='profile_pics', blank=True, null=True)
-    # photos = models.ForeignKey(Photo, on_delete=models.CASCADE, null=True, blank=True)
+    avatar = models.ImageField(default="default.png", upload_to='avatars', blank=True)
     # friends = models.ForeignKey(Friend, on_delete=models.CASCADE, null=True, blank=True)
-    description = models.TextField(max_length=10 ** 4, null=True, blank=True)
+    description = models.TextField(max_length=10 ** 4, blank=True)
     # stories = models.ForeignKey(Story, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):

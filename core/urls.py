@@ -10,7 +10,6 @@ urlpatterns = [
                   path('auth/', include('apps.userauth.urls')),
                   path('accounts/', include('allauth.urls')),
                   path("__debug__/", include("debug_toolbar.urls")),
-                  # path('accounts/google/login/', CustomGoogleLoginView.as_view(), name='google')
               ] + static(settings.MEDIA_URL,
                          document_root=settings.MEDIA_ROOT
                          )
