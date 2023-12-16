@@ -7,10 +7,12 @@ from django.views import View
 from django.core.exceptions import ObjectDoesNotExist
 from core import settings
 from apps.userauth.models import CustomUser
-from .forms import EditMySpaceForm, CreateMySpaceForm, AddPostForm, AddPhotoForm
+from .forms import EditMySpaceForm, CreateMySpaceForm, AddPostForm, AddPhotoForm, AddStoryForm
 from .models import Post, Gallery, Image
 
 from django.contrib import messages
+
+from .tasks import remove_story
 
 
 class CreateMySpaceView(CreateView):
@@ -53,7 +55,7 @@ class EditMySpaceView(UpdateView):
     form_class = EditMySpaceForm
     template_name = "apps.spacefy/edit.html"
     slug_url_kwarg = 'slug'
-    success_url = 'my-space'
+    success_url = _('my-space')
 
     def get(self, request, *args, **kwargs):
         form = self.form_class(instance=request.user.userprofile)
@@ -73,18 +75,11 @@ class EditMySpaceView(UpdateView):
 class AddPostView(CreateView):
     template_name = 'apps.spacefy/add-post.html'
     form_class = AddPostForm
-    success_url = 'my-space'
+    success_url = _('my-space')
 
-    def get(self, request, *args, **kwargs):
-        form = self.form_class()
-        return render(request, self.template_name, context={'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect(self.success_url)
-        return render(request, self.template_name, {'form': form})
+    def form_valid(self, form):
+        form.instance = self.request.user
+        return super().form_valid(form)
 
 
 class MyPostsView(View):
@@ -120,7 +115,8 @@ class MyPhotosView(View):
                 photos.append(
                     {
                         "multiple": False,
-                        "photo": settings.MEDIA_URL + "/" + Image.objects.get(gallery_id=gallery.id).image.name,
+                        "photo": settings.MEDIA_URL + Image.objects.
+                        get(gallery_id=gallery.id).image.name,
                         "description": gallery.description,
                         "created": str(gallery.creation_date.date())
                     }
@@ -129,12 +125,30 @@ class MyPhotosView(View):
                 photos.append(
                     {
                         "multiple": True,
-                        "photos": [settings.MEDIA_URL + "/" + inst.image.name
+                        "photos": [settings.MEDIA_URL + inst.image.name
                                    for inst in Image.objects.
                                    filter(gallery_id=gallery.id)],
                         "description": gallery.description,
                         "created": str(gallery.creation_date.date())
                     }
                 )
-        pprint(photos)
         return render(request, self.template_name, context={"photos": photos})
+
+
+class AddStoryView(CreateView):
+    template_name = 'apps.spacefy/add-story.html'
+    form_class = AddStoryForm
+    success_url = _('my-space')
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, context={"form": form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
+        form.instance.user = request.user
+        if form.is_valid():
+            result = form.save()
+            remove_story.apply_async(args=[str(result.story)], countdown=settings.STORY_LIFE_TIME)
+            return redirect(self.success_url)
+        return render(request, self.template_name, context={"form": form})

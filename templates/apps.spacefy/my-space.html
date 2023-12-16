@@ -74,7 +74,7 @@
                 <div class="d-block">
                     <h4>Add:</h4>
                     <ul style="list-style-type: none;">
-                        <li style="margin: 2px;"><button class="btn btn-primary" style="width: 70px;">Story</button></li>
+                        <a href='{% url "add-story" %}'><li style="margin: 2px;"><button class="btn btn-primary" style="width: 70px;">Story</button></li></a>
                         <a href='{% url "create-post" %}'><li style="margin: 2px;"><button class="btn btn-primary" style="width: 70px;">Post</button></li></a>
                         <a href='{% url "add-photo" %}'><li style="margin: 2px;"><button class="btn btn-primary" style="width: 70px;">Photo</button></li></a>
                     </ul>

@@ -119,6 +119,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATIC_ROOT = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -126,7 +127,7 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
 AUTH_USER_MODEL = "userauth.CustomUser"
-MEDIA_ROOT = 'media'
+MEDIA_ROOT = 'media/'
 MEDIA_URL = '/media/'
 
 AUTHENTICATION_BACKENDS = [
@@ -138,7 +139,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-
+# SMTP settings
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
@@ -146,6 +147,15 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+# Celery settings
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# Site general settings
+STORY_LIFE_TIME = int(os.environ.get('STORY_LIFE_TIME'))  # in seconds
+
+# Local settings (if exists)
 try:
     from local import *
 except ModuleNotFoundError:

@@ -3,15 +3,17 @@ from django.db import models
 from PIL import Image as I
 
 from apps.userauth.models import CustomUser
+from .validators import file_size_validator, file_type_validator
 
 
 class Story(models.Model):
-    ...
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    story = models.FileField(upload_to='stories', validators=[file_size_validator,
+                                                              file_type_validator])
+    creared_at = models.DateTimeField(auto_now_add=True)
 
-
-# stories = models.IntegerField(default=0, validators=[
-#         MinValueValidator(limit_value=0, message="Stories number cannot be negative!")
-#     ])
+    def __str__(self):
+        return self.user.userprofile.username + " - " + self.story.name
 
 
 class Gallery(models.Model):

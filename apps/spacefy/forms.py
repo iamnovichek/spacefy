@@ -8,7 +8,7 @@ from django.forms import ClearableFileInput
 from PIL import Image as I
 from apps.userauth.models import UserProfile
 
-from .models import Post, Gallery, Image
+from .models import Post, Gallery, Image, Story
 
 
 class CreateMySpaceForm(forms.ModelForm):
@@ -181,8 +181,9 @@ class AddPhotoForm(forms.ModelForm):
             return result
 
 
-# class AddImagesForm(AddPhotoForm):
-#     image = forms.FileField(widget=CustomFileInput(attrs={'multiple': True}), required=True)
-#
-#     class Meta(AddPhotoForm.Meta):
-#         fields = AddPhotoForm.Meta.fields + ['image']
+class AddStoryForm(forms.ModelForm):
+    story = forms.FileField(required=True, widget=forms.FileInput)
+
+    class Meta:
+        model = Story
+        fields = ['story']
