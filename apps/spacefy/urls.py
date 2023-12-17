@@ -1,8 +1,10 @@
 from django.urls import path
 from django.views.generic import TemplateView
 
-from .views import (MySpaceView, EditMySpaceView, CreateMySpaceView, AddPostView, MyPostsView, AddPhotoView,
-                    MyPhotosView, AddStoryView)
+from .views import (MySpaceView, EditMySpaceView, CreateMySpaceView,
+                    AddPostView, MyPostsView, AddPhotoView,
+                    MyPhotosView, AddStoryView, SearchUsersView,
+                    AnotherSpaceView, AnotherSpacePostsView, AnotherSpacePhotosView)
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='apps.spacefy/home.html'), name='home'),
@@ -14,4 +16,8 @@ urlpatterns = [
     path('my-posts/', MyPostsView.as_view(), name='my-posts'),
     path('my-photos/', MyPhotosView.as_view(), name='my-photos'),
     path('add-story/', AddStoryView.as_view(), name='add-story'),
+    path('users-search/', SearchUsersView.as_view(), name='user-search'),
+    path('another-space/<str:username>/', AnotherSpaceView.as_view(), name='another-space'),
+    path('another-space/posts/<str:username>/', AnotherSpacePostsView.as_view(), name='another-space-posts'),
+    path('another-space/photos/<str:username>/', AnotherSpacePhotosView.as_view(), name='another-space-photos'),
 ]

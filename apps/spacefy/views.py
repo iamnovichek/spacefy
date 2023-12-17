@@ -1,12 +1,13 @@
 from pprint import pprint
 
+from django.http import JsonResponse
 from django.urls import reverse_lazy as _
-from django.views.generic import UpdateView, CreateView
+from django.views.generic import UpdateView, CreateView, TemplateView
 from django.shortcuts import render, redirect
 from django.views import View
 from django.core.exceptions import ObjectDoesNotExist
 from core import settings
-from apps.userauth.models import CustomUser
+from apps.userauth.models import CustomUser, UserProfile
 from .forms import EditMySpaceForm, CreateMySpaceForm, AddPostForm, AddPhotoForm, AddStoryForm
 from .models import Post, Gallery, Image
 
@@ -152,3 +153,82 @@ class AddStoryView(CreateView):
             remove_story.apply_async(args=[str(result.story)], countdown=settings.STORY_LIFE_TIME)
             return redirect(self.success_url)
         return render(request, self.template_name, context={"form": form})
+
+
+class SearchUsersView(View):
+    @staticmethod
+    def get(request, *args, **kwargs):
+        usernames = [str(user.username) for user in
+                     UserProfile.objects.filter(
+                         username__icontains=request.GET.get("data", ""))] \
+                     if request.GET.get("data") else ""
+        if request.user.userprofile.username in usernames:
+            usernames.remove(request.user.userprofile.username)
+
+        return JsonResponse({"usernames": usernames})
+
+
+class AnotherSpaceView(TemplateView):
+    template_name = 'apps.spacefy/another-space.html'
+
+    def get_context_data(self, **kwargs):
+        result = super().get_context_data()
+        profile = UserProfile.objects.get(username=kwargs['username'])
+        user = profile.user
+        result["username"] = profile.username
+        result["full_name"] = profile.first_name + " " + profile.last_name
+        result["avatar"] = profile.avatar.url
+        result["description"] = profile.description
+        result["posts"] = Post.objects.filter(user_id=user).count()
+        photos = 0
+        for gallery in Gallery.objects.filter(user_id=user):
+            photos += Image.objects.filter(gallery_id=gallery.id).count()
+        result['photos'] = photos
+        return result
+
+
+class AnotherSpacePostsView(TemplateView):
+    template_name = 'apps.spacefy/another-space-posts.html'
+
+    def get_context_data(self, **kwargs):
+        result = super().get_context_data()
+        profile = UserProfile.objects.get(username=kwargs['username'])
+        result["posts"] = Post.objects.filter(user_id=profile.user)[::-1]
+        result["username"] = profile.username
+        result["avatar"] = profile.avatar.url
+        return result
+
+
+class AnotherSpacePhotosView(TemplateView):
+    template_name = 'apps.spacefy/another-space-photos.html'
+
+    def get_context_data(self, **kwargs):
+        result = super().get_context_data()
+        profile = UserProfile.objects.get(username=kwargs['username'])
+        result["username"] = profile.username
+        result["avatar"] = profile.avatar.url
+        photos = []
+        for gallery in Gallery.objects.filter(user_id=profile.user)[::-1]:
+            if Image.objects.filter(gallery_id=gallery.id).count() == 1:
+                photos.append(
+                    {
+                        "multiple": False,
+                        "photo": settings.MEDIA_URL + Image.objects.
+                        get(gallery_id=gallery.id).image.name,
+                        "description": gallery.description,
+                        "created": str(gallery.creation_date.date())
+                    }
+                )
+            else:
+                photos.append(
+                    {
+                        "multiple": True,
+                        "photos": [settings.MEDIA_URL + inst.image.name
+                                   for inst in Image.objects.
+                                   filter(gallery_id=gallery.id)],
+                        "description": gallery.description,
+                        "created": str(gallery.creation_date.date())
+                    }
+                )
+        result["photos"] = photos
+        return result

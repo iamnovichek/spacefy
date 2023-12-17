@@ -96,9 +96,7 @@ class UserProfile(models.Model):
         MinLengthValidator(limit_value=2, message="Last name should contain at least 2 characters!")
     ])
     avatar = models.ImageField(default="default.png", upload_to='avatars', blank=True)
-    # friends = models.ForeignKey(Friend, on_delete=models.CASCADE, null=True, blank=True)
     description = models.TextField(max_length=10 ** 4, blank=True)
-    # stories = models.ForeignKey(Story, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.username
