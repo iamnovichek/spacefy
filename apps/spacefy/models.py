@@ -47,8 +47,17 @@ class Post(models.Model):
 
 
 class Friend(models.Model):
+    user = models.ForeignKey(CustomUser, related_name="current_user", on_delete=models.CASCADE)
+    friend = models.OneToOneField(CustomUser, related_name="other_user", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return (self.user.userprofile.username +
+                " - friend of " + self.friend.userprofile.username)
+
+
+class Comment(models.Model):
     ...
-# friends = models.IntegerField(default=0, validators=[
-#         MinValueValidator(limit_value=0, message="Friends number cannot be negative!")
-#     ])
-# relate after with userprofile using foreignkey
+
+
+class Like(models.Model):
+    ...

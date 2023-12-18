@@ -12,9 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 success: function (response) {
                     if (response["usernames"]){
-                        for (let i = 0; i < response["usernames"].length; i++) {
-                            console.log(response["usernames"][i]);
-                        }
                         var listItems = response["usernames"].map(function (username) {
                         return '<a href="another-space/' + username + '/" style="text-decoration: none; color: #131314">' +
                             '<li>' + username + '</li>' + '</a>';}).join('');

@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from core import settings
 from apps.userauth.models import CustomUser, UserProfile
 from .forms import EditMySpaceForm, CreateMySpaceForm, AddPostForm, AddPhotoForm, AddStoryForm
-from .models import Post, Gallery, Image
+from .models import Post, Gallery, Image, Friend
 
 from django.contrib import messages
 
@@ -46,7 +46,8 @@ class MySpaceView(View):
                     total_photos_number += Image.objects.filter(gallery_id=gallery.id).count()
                 return render(request, self.template_name, context={
                     'posts': Post.objects.filter(user_id=request.user).count(),
-                    'photos': total_photos_number
+                    'photos': total_photos_number,
+                    'friends': Friend.objects.filter(user_id=request.user).count()
                 })
         except ObjectDoesNotExist:
             return render(request, self.user_has_not_profile_template)
@@ -184,6 +185,9 @@ class AnotherSpaceView(TemplateView):
         for gallery in Gallery.objects.filter(user_id=user):
             photos += Image.objects.filter(gallery_id=gallery.id).count()
         result['photos'] = photos
+        result['friends'] = Friend.objects.filter(user_id=user).count()
+        result['is_friend'] = Friend.objects.filter(user_id=self.request.user, friend_id=user).exists()
+
         return result
 
 
@@ -232,3 +236,21 @@ class AnotherSpacePhotosView(TemplateView):
                 )
         result["photos"] = photos
         return result
+
+
+class AddToFriendsView(TemplateView):
+    def post(self, request, *args, **kwargs):
+        Friend.objects.create(
+            user=request.user,
+            friend=UserProfile.objects.get(username=request.POST["username"]).user
+        )
+        return JsonResponse({"result": "success"})
+
+
+class RemoveFromFriendsView(TemplateView):
+    def post(self, request, *args, **kwargs):
+        Friend.objects.get(
+            user_id=request.user,
+            friend_id=UserProfile.objects.get(username=request.POST["username"]).user
+        ).delete()
+        return JsonResponse({"result": "success"})
