@@ -110,10 +110,13 @@
             </div><br><br><br><br><br>
             <div class="d-flex justify-content-evenly">
               {% if posts %}
-                <a class="btn btn-primary" style="width: 300px;" href="{% url "my-posts" %}">My posts</a>
+                <a class="btn btn-primary" style="width: 200px;" href="{% url "my-posts" %}">My posts</a>
               {% endif %}
               {% if photos %}
-                <a class="btn btn-primary" style="width: 300px;" href="{% url "my-photos" %}">My photos</a>
+                <a class="btn btn-primary" style="width: 200px;" href="{% url "my-photos" %}">My photos</a>
+              {% endif %}
+              {% if friends %}
+                <a class="btn btn-primary" style="width: 200px;" href="{% url "my-friends" %}">My friends</a>
               {% endif %}
             </div><br>
         </div>

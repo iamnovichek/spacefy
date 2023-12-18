@@ -3,9 +3,10 @@ from django.views.generic import TemplateView
 
 from .views import (MySpaceView, EditMySpaceView, CreateMySpaceView,
                     AddPostView, MyPostsView, AddPhotoView,
-                    MyPhotosView, AddStoryView, SearchUsersView,
+                    MyPhotosView, AddStoryView, SearchUsersAjaxView,
                     AnotherSpaceView, AnotherSpacePostsView, AnotherSpacePhotosView,
-                    AddToFriendsView, RemoveFromFriendsView)
+                    AddToFriendsAjaxView, RemoveFromFriendsAjaxView, MySpaceFriendsView,
+                    AnotherSpaceFriendsView, )
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='apps.spacefy/home.html'), name='home'),
@@ -17,10 +18,12 @@ urlpatterns = [
     path('my-posts/', MyPostsView.as_view(), name='my-posts'),
     path('my-photos/', MyPhotosView.as_view(), name='my-photos'),
     path('add-story/', AddStoryView.as_view(), name='add-story'),
-    path('users-search/', SearchUsersView.as_view(), name='user-search'),
+    path('users-search/', SearchUsersAjaxView.as_view(), name='user-search'),
     path('another-space/<str:username>/', AnotherSpaceView.as_view(), name='another-space'),
     path('another-space/posts/<str:username>/', AnotherSpacePostsView.as_view(), name='another-space-posts'),
     path('another-space/photos/<str:username>/', AnotherSpacePhotosView.as_view(), name='another-space-photos'),
-    path('add-to-friends/<str:username>/', AddToFriendsView.as_view(), name='add-2-friends'),
-    path('remove-from-friends/<str:username>/', RemoveFromFriendsView.as_view(), name='remove-from-friends'),
+    path('add-to-friends/<str:username>/', AddToFriendsAjaxView.as_view(), name='add-2-friends'),
+    path('remove-from-friends/<str:username>/', RemoveFromFriendsAjaxView.as_view(), name='remove-from-friends'),
+    path('my-friends/', MySpaceFriendsView.as_view(), name='my-friends'),
+    path('another-space-friends/<str:username>/', AnotherSpaceFriendsView.as_view(), name='another-space-friends'),
 ]

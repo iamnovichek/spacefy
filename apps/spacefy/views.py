@@ -8,7 +8,8 @@ from django.views import View
 from django.core.exceptions import ObjectDoesNotExist
 from core import settings
 from apps.userauth.models import CustomUser, UserProfile
-from .forms import EditMySpaceForm, CreateMySpaceForm, AddPostForm, AddPhotoForm, AddStoryForm
+from .forms import (EditMySpaceForm, CreateMySpaceForm,
+                    AddPostForm, AddPhotoForm, AddStoryForm)
 from .models import Post, Gallery, Image, Friend
 
 from django.contrib import messages
@@ -151,12 +152,13 @@ class AddStoryView(CreateView):
         form.instance.user = request.user
         if form.is_valid():
             result = form.save()
-            remove_story.apply_async(args=[str(result.story)], countdown=settings.STORY_LIFE_TIME)
+            remove_story.apply_async(args=[str(result.story)],
+                                     countdown=settings.STORY_LIFE_TIME)
             return redirect(self.success_url)
         return render(request, self.template_name, context={"form": form})
 
 
-class SearchUsersView(View):
+class SearchUsersAjaxView(View):
     @staticmethod
     def get(request, *args, **kwargs):
         usernames = [str(user.username) for user in
@@ -186,7 +188,8 @@ class AnotherSpaceView(TemplateView):
             photos += Image.objects.filter(gallery_id=gallery.id).count()
         result['photos'] = photos
         result['friends'] = Friend.objects.filter(user_id=user).count()
-        result['is_friend'] = Friend.objects.filter(user_id=self.request.user, friend_id=user).exists()
+        result['is_friend'] = (
+            Friend.objects.filter(user_id=self.request.user, friend_id=user).exists())
 
         return result
 
@@ -238,19 +241,48 @@ class AnotherSpacePhotosView(TemplateView):
         return result
 
 
-class AddToFriendsView(TemplateView):
+class AddToFriendsAjaxView(TemplateView):
     def post(self, request, *args, **kwargs):
         Friend.objects.create(
             user=request.user,
-            friend=UserProfile.objects.get(username=request.POST["username"]).user
+            friend=UserProfile.objects.
+            get(username=request.POST["username"]).user
         )
         return JsonResponse({"result": "success"})
 
 
-class RemoveFromFriendsView(TemplateView):
+class RemoveFromFriendsAjaxView(TemplateView):
     def post(self, request, *args, **kwargs):
         Friend.objects.get(
             user_id=request.user,
-            friend_id=UserProfile.objects.get(username=request.POST["username"]).user
+            friend_id=UserProfile.objects.
+            get(username=request.POST["username"]).user
         ).delete()
         return JsonResponse({"result": "success"})
+
+
+class MySpaceFriendsView(TemplateView):
+    template_name = "apps.spacefy/my-space-friends.html"
+
+    def get_context_data(self, **kwargs):
+        result = super().get_context_data()
+
+        result["friends"] = [UserProfile.objects.get(user=friend.friend)
+                             for friend in Friend.objects.
+                             filter(user_id=self.request.user)]
+
+        return result
+
+
+class AnotherSpaceFriendsView(TemplateView):
+    template_name = "apps.spacefy/another-space-friends.html"
+
+    def get_context_data(self, **kwargs):
+        result = super().get_context_data()
+
+        result["friends"] = [UserProfile.objects.get(user=friend.friend)
+                             for friend in Friend.objects.
+                             filter(user_id=UserProfile.objects.
+                                    get(username=kwargs["username"]).user)]
+
+        return result
