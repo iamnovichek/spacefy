@@ -51,6 +51,7 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -59,7 +60,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
     'allauth.account.middleware.AccountMiddleware',
+    'apps.userauth.middlewares.UserauthPagesAccessMiddleware',
+    'apps.spacefy.middlewares.AdminSiteAccessMiddleware',
+    'apps.spacefy.middlewares.SpacefyPagesAccessMiddleware',
+    'apps.spacefy.middlewares.AjaxURLsAccessMiddleware',
 
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
@@ -154,6 +160,8 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 # Site general settings
 STORY_LIFE_TIME = int(os.environ.get('STORY_LIFE_TIME'))  # in seconds
+
+IS_TEST_CONFIG = False
 
 # Local settings (if exists)
 try:

@@ -6,7 +6,7 @@ from .views import (MySpaceView, EditMySpaceView, CreateMySpaceView,
                     MyPhotosView, AddStoryView, SearchUsersAjaxView,
                     AnotherSpaceView, AnotherSpacePostsView, AnotherSpacePhotosView,
                     AddToFriendsAjaxView, RemoveFromFriendsAjaxView, MySpaceFriendsView,
-                    AnotherSpaceFriendsView, )
+                    AnotherSpaceFriendsView, LikeAjaxView, UnlikeAjaxView)
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='apps.spacefy/home.html'), name='home'),
@@ -26,4 +26,6 @@ urlpatterns = [
     path('remove-from-friends/<str:username>/', RemoveFromFriendsAjaxView.as_view(), name='remove-from-friends'),
     path('my-friends/', MySpaceFriendsView.as_view(), name='my-friends'),
     path('another-space-friends/<str:username>/', AnotherSpaceFriendsView.as_view(), name='another-space-friends'),
+    path('like/', LikeAjaxView.as_view(), name='like'),
+    path('unlike/', UnlikeAjaxView.as_view(), name='unlike'),
 ]

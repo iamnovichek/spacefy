@@ -1,5 +1,6 @@
 from pprint import pprint
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy as _
 from django.views.generic import UpdateView, CreateView, TemplateView
@@ -10,14 +11,15 @@ from core import settings
 from apps.userauth.models import CustomUser, UserProfile
 from .forms import (EditMySpaceForm, CreateMySpaceForm,
                     AddPostForm, AddPhotoForm, AddStoryForm)
-from .models import Post, Gallery, Image, Friend
+from .models import Post, Gallery, Image, Friend, Like
 
 from django.contrib import messages
 
 from .tasks import remove_story
 
 
-class CreateMySpaceView(CreateView):
+class CreateMySpaceView(LoginRequiredMixin, CreateView):
+    login_url = _('login')
     template_name = 'apps.spacefy/create-profile.html'
     success_url = 'my-space'
     form_class = CreateMySpaceForm
@@ -35,7 +37,8 @@ class CreateMySpaceView(CreateView):
         return render(request, self.template_name, {'form': form})
 
 
-class MySpaceView(View):
+class MySpaceView(LoginRequiredMixin, View):
+    login_url = _('login')
     template_name = 'apps.spacefy/my-space.html'
     user_has_not_profile_template = "apps.spacefy/no-profile.html"
 
@@ -54,7 +57,8 @@ class MySpaceView(View):
             return render(request, self.user_has_not_profile_template)
 
 
-class EditMySpaceView(UpdateView):
+class EditMySpaceView(LoginRequiredMixin, UpdateView):
+    login_url = _('login')
     form_class = EditMySpaceForm
     template_name = "apps.spacefy/edit.html"
     slug_url_kwarg = 'slug'
@@ -75,7 +79,8 @@ class EditMySpaceView(UpdateView):
         return render(request, self.template_name, {'form': form})
 
 
-class AddPostView(CreateView):
+class AddPostView(LoginRequiredMixin, CreateView):
+    login_url = _('login')
     template_name = 'apps.spacefy/add-post.html'
     form_class = AddPostForm
     success_url = _('my-space')
@@ -85,7 +90,8 @@ class AddPostView(CreateView):
         return super().form_valid(form)
 
 
-class MyPostsView(View):
+class MyPostsView(LoginRequiredMixin, View):
+    login_url = _('login')
     template_name = 'apps.spacefy/posts.html'
 
     def get(self, request, *args, **kwargs):
@@ -94,7 +100,8 @@ class MyPostsView(View):
         })
 
 
-class AddPhotoView(CreateView):
+class AddPhotoView(LoginRequiredMixin, CreateView):
+    login_url = _('login')
     template_name = 'apps.spacefy/add-photo.html'
     form_class = AddPhotoForm
     success_url = _('my-space')
@@ -108,7 +115,8 @@ class AddPhotoView(CreateView):
         return super().form_invalid(form)
 
 
-class MyPhotosView(View):
+class MyPhotosView(LoginRequiredMixin, View):
+    login_url = _('login')
     template_name = 'apps.spacefy/photos.html'
 
     def get(self, request, *args, **kwargs):
@@ -138,7 +146,8 @@ class MyPhotosView(View):
         return render(request, self.template_name, context={"photos": photos})
 
 
-class AddStoryView(CreateView):
+class AddStoryView(LoginRequiredMixin, CreateView):
+    login_url = _('login')
     template_name = 'apps.spacefy/add-story.html'
     form_class = AddStoryForm
     success_url = _('my-space')
@@ -164,14 +173,15 @@ class SearchUsersAjaxView(View):
         usernames = [str(user.username) for user in
                      UserProfile.objects.filter(
                          username__icontains=request.GET.get("data", ""))] \
-                     if request.GET.get("data") else ""
+            if request.GET.get("data") else ""
         if request.user.userprofile.username in usernames:
             usernames.remove(request.user.userprofile.username)
 
         return JsonResponse({"usernames": usernames})
 
 
-class AnotherSpaceView(TemplateView):
+class AnotherSpaceView(LoginRequiredMixin, TemplateView):
+    login_url = _('login')
     template_name = 'apps.spacefy/another-space.html'
 
     def get_context_data(self, **kwargs):
@@ -194,7 +204,8 @@ class AnotherSpaceView(TemplateView):
         return result
 
 
-class AnotherSpacePostsView(TemplateView):
+class AnotherSpacePostsView(LoginRequiredMixin, TemplateView):
+    login_url = _('login')
     template_name = 'apps.spacefy/another-space-posts.html'
 
     def get_context_data(self, **kwargs):
@@ -206,7 +217,8 @@ class AnotherSpacePostsView(TemplateView):
         return result
 
 
-class AnotherSpacePhotosView(TemplateView):
+class AnotherSpacePhotosView(LoginRequiredMixin, TemplateView):
+    login_url = _('login')
     template_name = 'apps.spacefy/another-space-photos.html'
 
     def get_context_data(self, **kwargs):
@@ -220,6 +232,9 @@ class AnotherSpacePhotosView(TemplateView):
                 photos.append(
                     {
                         "multiple": False,
+                        "gallery_id": gallery.id,
+                        "liked": Like.objects.filter(liked_object_title="photo",
+                                                     liked_object_id=gallery.id).exists(),
                         "photo": settings.MEDIA_URL + Image.objects.
                         get(gallery_id=gallery.id).image.name,
                         "description": gallery.description,
@@ -230,6 +245,9 @@ class AnotherSpacePhotosView(TemplateView):
                 photos.append(
                     {
                         "multiple": True,
+                        "gallery_id": gallery.id,
+                        "liked": Like.objects.filter(liked_object_title="photo",
+                                                     liked_object_id=gallery.id).exists(),
                         "photos": [settings.MEDIA_URL + inst.image.name
                                    for inst in Image.objects.
                                    filter(gallery_id=gallery.id)],
@@ -238,11 +256,14 @@ class AnotherSpacePhotosView(TemplateView):
                     }
                 )
         result["photos"] = photos
+        result["galleries_number"] = len(photos)
+        pprint(photos)
         return result
 
 
-class AddToFriendsAjaxView(TemplateView):
-    def post(self, request, *args, **kwargs):
+class AddToFriendsAjaxView(View):
+    @staticmethod
+    def post(request, *args, **kwargs):
         Friend.objects.create(
             user=request.user,
             friend=UserProfile.objects.
@@ -251,8 +272,9 @@ class AddToFriendsAjaxView(TemplateView):
         return JsonResponse({"result": "success"})
 
 
-class RemoveFromFriendsAjaxView(TemplateView):
-    def post(self, request, *args, **kwargs):
+class RemoveFromFriendsAjaxView(View):
+    @staticmethod
+    def post(request, *args, **kwargs):
         Friend.objects.get(
             user_id=request.user,
             friend_id=UserProfile.objects.
@@ -261,7 +283,8 @@ class RemoveFromFriendsAjaxView(TemplateView):
         return JsonResponse({"result": "success"})
 
 
-class MySpaceFriendsView(TemplateView):
+class MySpaceFriendsView(LoginRequiredMixin, TemplateView):
+    login_url = _('login')
     template_name = "apps.spacefy/my-space-friends.html"
 
     def get_context_data(self, **kwargs):
@@ -274,7 +297,8 @@ class MySpaceFriendsView(TemplateView):
         return result
 
 
-class AnotherSpaceFriendsView(TemplateView):
+class AnotherSpaceFriendsView(LoginRequiredMixin, TemplateView):
+    login_url = _('login')
     template_name = "apps.spacefy/another-space-friends.html"
 
     def get_context_data(self, **kwargs):
@@ -286,3 +310,23 @@ class AnotherSpaceFriendsView(TemplateView):
                                     get(username=kwargs["username"]).user)]
 
         return result
+
+
+class LikeAjaxView(TemplateView):
+    def post(self, request):
+        Like.objects.create(
+            user=request.user,
+            liked_object_title=request.POST.get("type"),
+            liked_object_id=int(request.POST.get("gallery_id"))
+        )
+        return JsonResponse({"result": "success"})
+
+
+class UnlikeAjaxView(TemplateView):
+    def post(self, request):
+        Like.objects.get(
+            user=request.user,
+            liked_object_title=request.POST.get("type"),
+            liked_object_id=int(request.POST.get("gallery_id"))
+        ).delete()
+        return JsonResponse({"result": "success"})

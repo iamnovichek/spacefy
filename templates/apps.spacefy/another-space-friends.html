@@ -74,11 +74,15 @@
                 <div class="friends-list">
                     <ul>
                         {% for friend in friends %}
-                        <a href="{% url "another-space" username=friend.username %}">
-                            <li>
-                                <div><img src="{{friend.avatar.url}}"> @{{friend.username}}</div>
-                            </li>
-                        </a>
+                            {% if friend.username == user.userprofile.username %}
+                                <a href="{% url "my-space" %}">
+                            {% else %}
+                                <a href="{% url "another-space" username=friend.username %}">
+                            {% endif %}
+                                <li>
+                                    <div><img src="{{friend.avatar.url}}"> @{{friend.username}}</div>
+                                </li>
+                            </a>
                         {% endfor %}
                     </ul>
                 </div>

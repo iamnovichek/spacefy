@@ -20,7 +20,7 @@
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
               <a href="{% url "home" %}"><img src="{% static 'spacefy/images/logo-trans.png' %}" alt="" class="img-fluid"  style="height: 45px;margin-bottom: 10px;"></a>
-              <a class="navbar-brand spacefy-font" href="#"><h1>Spacefy</h1></a>
+              <a class="navbar-brand spacefy-font" href="{% url "home" %}"><h1>Spacefy</h1></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>

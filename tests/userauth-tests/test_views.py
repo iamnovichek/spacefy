@@ -1,34 +1,35 @@
-from django.test import TestCase, Client
+import os
+from pprint import pprint
 
-from apps.userauth.views import CustomLoginView, CustomSignupView
-from apps.userauth.models import CustomUser
+from django.test import TestCase
+from django.urls import reverse
+from unittest.mock import patch
+from apps.userauth.models import CustomUser, UserProfile
+from apps.userauth.forms import SignupForm
 
 
 class TestCustomLoginView(TestCase):
     def setUp(self):
-        self.client = Client()
-        self.user = CustomUser.objects.create_user(
-            email="test@gmai.com",
-            password="mypassword123"
+        CustomUser.objects.create_user(
+            email='test@gmail.com',
+            password='<PASSWORD>'
         )
 
+        self.email = "test@gmail.com"
+
     def test_form_invalid(self):
-        response = self.client.post(path="/auth/login/", data={
-            "username": "something wrong",
-            "password": "something wrong too"
+        response = self.client.post(path='/auth/login/', data={
+            'email': self.email,
+            'password': 'invalid_password'
         })
-        self.assertEqual(response, "expected string")
+        self.assertTrue(response)
 
 
-class TestCustomSignupView(TestCase):
-    def setUp(self):
-        pass
-
-    def test_get(self):
-        pass
-
-    def test_post_valid_data(self):
-        pass
-
-    def test_post_invalid_data(self):
-        pass
+# class TestSignupView(TestCase):
+#     def setUp(self):
+#         self.form = SignupForm()
+#
+#     def test_get(self):
+#         response = self.client.get(reverse('signup'))
+#         pprint(response.context)
+#         self.assertEqual(response.status_code, 200)

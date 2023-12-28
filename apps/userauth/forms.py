@@ -1,10 +1,28 @@
+from django.contrib.auth.forms import AuthenticationForm, UsernameField
 from django.core.exceptions import ValidationError
 from django import forms
-
+from django.utils.translation import gettext_lazy as _
 from .models import CustomUser, UserProfile
 
 
-class CustomSignupForm(forms.ModelForm):
+class CustomAuthenticationForm(AuthenticationForm):
+    username = UsernameField(widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'type': 'email',
+        'placeholder': 'Enter your email...',
+        'id': 'email'
+    }))
+
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'type': 'password',
+            'class': 'form-control',
+            'placeholder': 'Enter your password...',
+            'id': 'password'
+        }))
+
+
+class SignupForm(forms.ModelForm):
     username = forms.CharField(required=True)
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
@@ -17,7 +35,7 @@ class CustomSignupForm(forms.ModelForm):
         fields = ['email']
 
     def clean(self):
-        cleaned_data = super(CustomSignupForm, self).clean()
+        cleaned_data = super(SignupForm, self).clean()
         username = cleaned_data.get('username')
         first_name = cleaned_data.get('first_name')
         last_name = cleaned_data.get('last_name')

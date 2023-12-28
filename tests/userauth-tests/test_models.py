@@ -1,8 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from apps.userauth.models import CustomUser, CustomUserManager, UserProfile
-from apps.spacefy.models import Friend, Post, Photo, Descriprion, Story
+from apps.userauth.models import CustomUser, UserProfile
 
 
 class TestCustomManager(TestCase):
@@ -26,33 +25,27 @@ class TestCustomManager(TestCase):
         self.assertEqual(created_user.email, self.valid_email)
 
     def test_create_user_no_email(self) -> None:
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError):
             self.manager.create_user(
                 email=None,
                 password=self.password
             )
 
-            self.assertEqual(e.message, "Email is required!")
-
     def test_create_user_invalid_email(self) -> None:
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError):
             self.manager.create_user(
                 email=self.invalid_email,
                 password=self.password
             )
 
-            self.assertEqual(e.message, "Invalid email format!")
-
     def test_create_user_no_password(self) -> None:
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError):
             self.manager.create_user(
                 email=self.valid_email,
                 password=None
             )
 
-            self.assertEqual(e.message, "Password is required!")
-
-    def test_create_superuser_valid(self) -> None:
+    def test_create_superuser_valid_data(self) -> None:
         user = self.manager.create_superuser(
             email=self.valid_email,
             password=self.password
@@ -66,31 +59,25 @@ class TestCustomManager(TestCase):
         self.assertEqual(created_superuser.email, self.valid_email)
 
     def test_create_superuser_no_email(self) -> None:
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError):
             self.manager.create_superuser(
                 email=None,
                 password=self.password
             )
 
-            self.assertEqual(e.message, "Email is required!")
-
     def test_create_superuser_invalid_email(self) -> None:
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError):
             self.manager.create_superuser(
                 email=self.invalid_email,
                 password=self.password
             )
 
-            self.assertEqual(e.message, "Invalid email format!")
-
     def test_create_superuser_no_password(self) -> None:
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError):
             self.manager.create_superuser(
                 email=self.valid_email,
                 password=None
             )
-
-            self.assertEqual(e.message, "Password is required!")
 
 
 class TestCustomUser(TestCase):
@@ -108,9 +95,9 @@ class TestCustomUser(TestCase):
         self.assertEqual(self.user.email, "user@gmail.com")
         self.assertEqual(self.superuser.email, "test@gmail.com")
         self.assertTrue(self.user.is_active)
+        self.assertFalse(self.user.is_admin)
         self.assertTrue(self.superuser.is_active)
         self.assertTrue(self.superuser.is_admin)
-        self.assertFalse(self.user.is_admin)
         self.assertEqual(self.user.USERNAME_FIELD, "email")
         self.assertEqual(self.superuser.USERNAME_FIELD, "email")
         self.assertEqual(self.user.REQUIRED_FIELDS, [])

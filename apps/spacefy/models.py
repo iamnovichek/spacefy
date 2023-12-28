@@ -22,7 +22,8 @@ class Gallery(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.user.userprofile.username + " - " + self.description
+        return (str(self.pk) + " " + self.user.userprofile.username +
+                " - " + self.description)
 
 
 class Image(models.Model):
@@ -60,8 +61,14 @@ class Comment(models.Model):
 
 
 class Like(models.Model):
-    # user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    ...
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    liked_object_title = models.CharField(choices=(("photo", "photo"), ("post", "post")))
+    liked_object_id = models.IntegerField(unique=True)
+
+    def __str__(self):
+        return (self.user.userprofile.username + " liked " +
+                self.liked_object_title + " " +
+                str(Gallery.objects.get(pk=self.liked_object_id)))
 
 # class UserPersonalParameters(models.Model):
 #     ...

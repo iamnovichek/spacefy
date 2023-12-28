@@ -5,11 +5,11 @@ from django.contrib.auth.views import (LogoutView,
                                        PasswordResetCompleteView)
 from django.urls import path
 
-from .views import CustomLoginView, CustomSignupView
+from .views import CustomLoginView, SignupView
 
 urlpatterns = [
     path('login/', CustomLoginView.as_view(), name='login'),
-    path('signup/', CustomSignupView.as_view(), name='signup'),
+    path('signup/', SignupView.as_view(), name='signup'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('password-reset/', PasswordResetView.as_view(template_name='apps.userauth/password_reset.html'),
          name='password-reset'),

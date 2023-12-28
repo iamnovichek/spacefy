@@ -7,7 +7,7 @@ from django import forms
 from django.forms import ClearableFileInput
 from PIL import Image as I
 from apps.userauth.models import UserProfile
-
+from core import settings
 from .models import Post, Gallery, Image, Story
 
 
@@ -98,13 +98,6 @@ class EditMySpaceForm(forms.ModelForm):
 
         return cleaned_data
 
-    def is_valid(self):
-        res = super().is_valid()
-        if not res:
-            print(self.errors)
-            return res
-        return res
-
     def save(self, commit=True):
         if commit:
             profile = UserProfile.objects.get(pk=self.instance.id)
@@ -117,10 +110,17 @@ class EditMySpaceForm(forms.ModelForm):
                     except (FileNotFoundError, ValueError) as e:
                         print(e)
                     #  REWRITE THIS PART
-                    img = I.open(fp=self.cleaned_data['avatar'])
-                    img.resize(size=(200, 200))
-                    img.save(fp=self.cleaned_data['avatar'])
-                    profile.avatar = self.cleaned_data['avatar']
+                    if str(self.cleaned_data['avatar']).split(".")[-1] == "png":
+                        img = I.open(fp=self.cleaned_data['avatar'])
+                        img.resize(size=(200, 200))
+                        img.convert('RGB').save(fp=settings.MEDIA_ROOT + "avatars/" + str(self.
+                                           cleaned_data['avatar']).split('.')[0] + ".jpg")
+                        profile.avatar = self.cleaned_data['avatar']
+                    else:
+                        img = I.open(fp=self.cleaned_data['avatar'])
+                        img.resize(size=(200, 200))
+                        img.save(fp=self.cleaned_data['avatar'])
+                        profile.avatar = self.cleaned_data['avatar']
 
             profile.username = self.cleaned_data['username']
             profile.first_name = (self.cleaned_data['first_name'][0].capitalize() +

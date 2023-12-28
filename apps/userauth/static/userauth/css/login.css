@@ -111,3 +111,10 @@
     opacity: 8%;
   }
   
+
+  #email,
+  #password{
+      margin-left: 5px;
+      margin-bottom: 5px;
+      width: 98%;
+  }

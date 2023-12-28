@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Coustard&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="{% static 'spacefy/css/photos.css' %}">
+    <script src="{% static 'spacefy/js/another-space-photos.js' %}"></script>
 {% endblock extrahead %}    
 
 
@@ -64,13 +65,17 @@
             <div class="d-flex justify-content-start">
                 <a style="margin-left: 5px;" href="{% url "another-space" username=username %}">Go back</a>
             </div><br>
+            <div style="display: none">
+                {% csrf_token %}
+            </div>
             <div class="d-flex justify-content-center">
                 {% if photos %}
-                    <h2>My photos</h2>
+                    <h2>{{username}}'s photos</h2>
                 {% else %}
                     <h2>There is no photos yet...</h2>
                 {% endif %}
             </div><br>
+            <div style="display: none" id="data" data-to-grab="{{galleries_number}}"></div>
             {% for obj in photos %}
               <div class="container bg-dark text-light rounded" style="max-width: 70%;">
                 <div class="position-relative start-0 d-block">
@@ -123,9 +128,15 @@
                           Comments: 6.4k
                         </div>
                       </div>
-                      <button class="btn btn-primary" style="margin-bottom: 10px;">
-                        <span class="material-symbols-outlined">thumb_up</span>
-                      </button>
+                     {% if obj.liked %}
+                        <button class="btn btn-secondary" data-liked="{{obj.liked}}" id="like-{{forloop.counter}}" data-gallery-id="{{obj.gallery_id}}" style="margin-bottom: 10px;">
+                          <span class="material-symbols-outlined">thumb_up</span>
+                        </button>
+                     {% else %}
+                        <button class="btn btn-primary" data-liked="{{obj.liked}}" id="like-{{forloop.counter}}" data-gallery-id="{{obj.gallery_id}}" style="margin-bottom: 10px;">
+                          <span class="material-symbols-outlined">thumb_up</span>
+                        </button>
+                     {% endif %}
                       <p class="d-inline-flex gap-1">
                         <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{forloop.counter}}" aria-expanded="false" aria-controls="collapseExample">
                           <span class="material-symbols-outlined">comment</span>
